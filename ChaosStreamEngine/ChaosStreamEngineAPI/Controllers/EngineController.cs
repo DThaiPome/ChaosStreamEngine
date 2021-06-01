@@ -15,10 +15,10 @@ namespace ChaosStreamEngineAPI.Controllers
             return View();
         }
 
-        [HttpGet]
-        public int Test()
+        [HttpPut]
+        public void PushInput(int input)
         {
-            return Program.GetCount();
+            Program.PushInput(input);
         }
     }
 }

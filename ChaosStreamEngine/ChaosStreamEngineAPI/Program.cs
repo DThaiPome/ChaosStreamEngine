@@ -16,7 +16,7 @@ namespace ChaosStreamEngineAPI
         [DllImport("ChaosStreamEngineLib.dll")]
         public static extern void StartEngine();
         [DllImport("ChaosStreamEngineLib.dll")]
-        public static extern int GetCount();
+        public static extern void PushInput(int input);
 
         public static void Main(string[] args)
         {
@@ -39,14 +39,6 @@ namespace ChaosStreamEngineAPI
         public static void RunAPI(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-        }
-
-        public static void RunEngine()
-        {
-            while(true)
-            {
-                Console.WriteLine("Running engine asynchronously!");
-            }
         }
     }
 }

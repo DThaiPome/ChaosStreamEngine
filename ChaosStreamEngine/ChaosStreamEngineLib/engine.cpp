@@ -1,39 +1,61 @@
 #include "pch.h"
+#include "Engine.hpp"
+#include "InputManager.hpp"
 #include <SDL.h>
+#include <stdio.h>
+#include <iostream>
 
-extern "C" {
+Engine::Engine() {
 
-	int count;
+}
 
-	__declspec(dllexport) void StartEngine() {
-		SDL_Init(SDL_INIT_VIDEO);
-		
-		SDL_Window* window = SDL_CreateWindow("Test", 100, 100, 800, 600, SDL_WINDOW_SHOWN);
-		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+Engine::~Engine() {
+}
 
-		bool running = true;
-		while (running) {
-			SDL_Event event;
-			while (SDL_PollEvent(&event)) {
-				if (event.type == SDL_QUIT) {
-					running = false;
-				}
+void Engine::InitializeSubSystems(GraphicsEngineRenderer* renderer) {
+	this->renderer = renderer;
+	InputManager::getInstance()->init();
+}
+
+void Engine::Shutdown() {
+	InputManager::getInstance()->shutdown();
+	delete this->renderer;
+}
+
+bool Engine::CheckIfRunning() {
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void Engine::StartLoop(bool popInputs) {
+	InputManager* input = InputManager::getInstance();
+
+	bool running = true;
+	while (running) {
+		this->renderer->SetRenderDrawColor(0x0, 0x0, 0x0, 0xFF);
+		this->renderer->RenderClear();
+		this->renderer->RenderPresent();
+
+		if (popInputs) {
+			unsigned int i;
+			while((i = input->pop()) != 0) { 
+				std::cout << i << std::endl;
 			}
-
-			count++;
-			count %= 10000;
-
-			SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xFF);
-			SDL_RenderClear(renderer);
-			SDL_RenderPresent(renderer);
 		}
 
-		SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-	}
+		// UPDATE
+		// RENDER
+		// FRAME DELAY
 
-	__declspec(dllexport) int GetCount() {
-		return count;
+		if (popInputs) {
+			input->clearInputFlags();
+		}
+
+		running = this->CheckIfRunning();
 	}
 }
